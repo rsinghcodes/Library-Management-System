@@ -16,11 +16,14 @@ class library
 
 	//***FUNCTION DECLARATIONS***
 public:
-	void add_book();	 // Add new book
-	void display_book(); // Display book
+	void add_book();  // Add new book
+	void show_book(); // Display book
+	void update();	  //update with new data from user
+	int return_bid();
 };
 // end of class
 
+//***FUNCTION DEFINITIONS***//
 void library::add_book()
 {
 	cout << "Book Id: ";
@@ -31,22 +34,41 @@ void library::add_book()
 	cin >> book_name;
 	cout << "\nEnter Author name: ";
 	cin >> author_name;
-	cout << "Book added successfully!";
+	cout << "\nEnter Book price: ";
+	cin >> author_name;
+	cout << "\n====================== Book added successfully! ======================";
 }
 
-void library::display_book()
+void library::show_book()
 {
-	cout << "Book Details";
 	cout << "\nBook Id: " << book_id;
 	cout << "\nEnter Book ISBN: " << book_isbn;
 	cout << "\nEnter Book name: " << book_name;
 	cout << "\nEnter Author name: " << author_name;
+	cout << "\nEnter Book price: " << price;
+}
+
+void library::update()
+{
+	cout << "Book Id: " << book_id;
+	cout << "Enter book name: ";
+	cin >> book_name;
+	cout << "\nEnter Author name: ";
+	cin >> author_name;
+	cout << "\nEnter Book price: ";
+	cin >> price;
+}
+
+int library::return_bid()
+{
+	return book_id;
 }
 
 //***FUNTIONS DECLARATIONS FOR FILES***//
 
 void write_book();
 void display_book();
+void update_book(int);
 
 void write_book()
 {
@@ -71,16 +93,50 @@ void display_book()
 		cout << "File not found...press any key to continue";
 		return;
 	}
-	cout << "\t***BOOK DETAILS***" << endl;
+
 	while (inFile.read((char *)&book, sizeof(library)))
 	{
-		book.display_book();
+		book.show_book();
 		found = true;
 	}
 	inFile.close();
 	if (found == false)
 	{
 		cout << "Book does not exist" << endl;
+	}
+}
+
+//Updating book record in the file
+void update_book(int n)
+{
+	bool found = false;
+	library book;
+	fstream File;
+	File.open("books.txt", ios::in, ios::out);
+	if (!File)
+	{
+		cout << "File not found...press any key to continue\n";
+		return;
+	}
+	while (File.read((char *)&book, sizeof(library)) && found == false)
+	{
+		if (book.return_bid() == n)
+		{
+			cout << "Old book details : ";
+			book.show_book();
+			cout << "\nEnter new details : ";
+			book.update();
+			int pos = (-1) * sizeof(library);
+			File.seekp(pos, ios::cur);
+			File.write((char *)&book, sizeof(library));
+			cout << "\nRecord Updated successfully";
+			found = true;
+		}
+	}
+	File.close();
+	if (found == false)
+	{
+		cout << "\nRecord not found";
 	}
 }
 
@@ -114,10 +170,12 @@ bool login()
 int main()
 {
 	char choice;
+	int num;
+
 	system("cls");
 	cout << "__________________________________________________________________________\n\n";
 	cout << "\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb" << endl;
-	cout << "\n\t======== Welcome to Library Management System =======\n\n";
+	cout << "\n\t======== Welcome to Library Management System ========\n\n";
 	cout << "\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb\xdb" << endl;
 	cout << "__________________________________________________________________________" << endl;
 
@@ -128,21 +186,33 @@ int main()
 		cout << "\n\n====================== Login Successful: Welcome : ) ======================";
 		Sleep(1000);
 		system("cls");
-		cout << "\n=================== MENU ==================\n\n";
-		cout << "\t1) Add new book" << endl;
-		cout << "\t2) See book list" << endl;
-		cout << "\t3) Delete book" << endl;
+		cout << "\n\t================== MENU ==================\n\n";
+		cout << "\t\t1) Add new book" << endl;
+		cout << "\t\t2) See books list" << endl;
+		cout << "\t\t3) Update book" << endl;
+		cout << "\t\t4) Delete book" << endl;
+		cout << "\t\t5) Exit" << endl;
 
-		cout << "\nPlease enter a choice [1-3] : ";
+		cout << "\nPlease enter a choice [1-4] : ";
 		cin >> choice;
+		system("cls");
 
 		switch (choice)
 		{
 		case '1':
+			cout << "================ ADD BOOK DETAILS ==============\n\n";
 			write_book();
 			break;
 		case '2':
+			cout << "================ BOOK DETAILS ==============\n\n";
 			display_book();
+			break;
+		case '3':
+			cout << "Enter book Id : ";
+			cin >> num;
+			update_book(num);
+		case '5':
+			cout << "================ | THANK YOU FOR USING LIBRARY MANAGEMENT SYSTEM | ================" << endl;
 			break;
 		default:
 			break;
@@ -151,7 +221,7 @@ int main()
 	else
 	{
 		system("cls");
-		cout << "\n\n====================== Login Failed: Try again! : ( ======================";
+		cout << "\n\n====================== LOGIN FAILED: Try again! : ( ======================";
 	}
 
 	return 0;
